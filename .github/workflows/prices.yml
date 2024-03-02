@@ -24,6 +24,7 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_ROLE }}
           aws-region: ${{ env.AWS_REGION }}
+          mask-aws-account-id: true
       - name: Install poetry
         run: pipx install poetry
       - uses: actions/setup-python@v4
