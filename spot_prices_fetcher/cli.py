@@ -1,4 +1,5 @@
 import datetime
+import functools
 import gzip
 from pathlib import Path
 from typing import Annotated
@@ -73,6 +74,12 @@ def fetch(
     )
 
 
+@functools.lru_cache(maxsize=None)
+def ec2_client_for_region(region: str) -> EC2Client:
+    ec2: EC2Client = boto3.client("ec2", region_name=region)
+    return ec2
+
+
 @app.command()
 def fetch_date(
     day: Annotated[
@@ -82,7 +89,7 @@ def fetch_date(
     region: str,
     output_path: Path,
 ):
-    ec2: EC2Client = boto3.client("ec2", region_name=region)
+    ec2 = ec2_client_for_region(region)
     paginator = ec2.get_paginator("describe_spot_price_history")
     start_timestamp = datetime.datetime.combine(day, datetime.time.min).astimezone(
         tzutc()
