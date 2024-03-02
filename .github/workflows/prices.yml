@@ -24,10 +24,11 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_ROLE }}
           aws-region: ${{ env.AWS_REGION }}
+      - name: Install poetry
+        run: pipx install poetry
       - uses: actions/setup-python@v4
         with:
           python-version: "3.11"
           cache: "poetry"
-      - uses: Gr1N/setup-poetry@v8
       - run: poetry install
       - run: poetry run python -m spot_prices_fetcher fetch
