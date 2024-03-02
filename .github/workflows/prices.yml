@@ -51,3 +51,15 @@ jobs:
           wget -q https://github.com/duckdb/duckdb/releases/download/v0.10.0/duckdb_cli-linux-amd64.zip
           unzip duckdb_cli-linux-amd64.zip
       - run: ./duckdb < export.sql
+      - name: Publish
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          name: "Latest Release"
+          tag_name: "latest"
+          target_commitish: "empty"
+          files: 'history.parquet'
+          body: |
+            Automated bundling of release data into a sqlite database. 
+            Updated on ${{ steps.current-time.outputs.formattedTime }}
+            See the readme for more information.
