@@ -51,13 +51,18 @@ jobs:
           wget -q https://github.com/duckdb/duckdb/releases/download/v0.10.0/duckdb_cli-linux-amd64.zip
           unzip duckdb_cli-linux-amd64.zip
       - run: ./duckdb < export.sql
+      - name: Get current time
+        uses: josStorer/get-current-time@v2
+        id: current-time
+        with:
+          format: YYYY-MM-DD
+          utcOffset: "+00:00"
       - name: Publish
         uses: softprops/action-gh-release@v1
         with:
           draft: false
-          name: "Latest Release"
-          tag_name: "latest"
-          target_commitish: "empty"
+          name: |
+            ${{ steps.current-time.outputs.formattedTime }}
           files: 'history.parquet'
           body: |
             Automated bundling of release data into a sqlite database. 
