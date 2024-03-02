@@ -111,7 +111,7 @@ def fetch_date(
             ProductDescriptions=["Linux/UNIX"],
         )
         for item in page["SpotPriceHistory"]
-        if start_timestamp <= item["Timestamp"] < end_timestamp
+        if start_timestamp <= item["Timestamp"] <= end_timestamp
     ]
     print(f"Got {len(results)} results for {region}")
     sorted_results = sorted(results, key=lambda x: x["Timestamp"])
