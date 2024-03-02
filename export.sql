@@ -1,3 +1,6 @@
+INSTALL sqlite;
+LOAD sqlite;
+
 copy
 (
     select region,
@@ -10,3 +13,16 @@ copy
     ORDER BY region, availability_zone, instance_type, timestamp
 )
 to 'history.parquet' (COMPRESSION 'ZSTD');
+
+
+ATTACH 'history.sqlite' AS sqlite_db (TYPE SQLITE);
+drop table if exists sqlite_db.spot_prices;
+create table sqlite_db.spot_prices AS (
+    select
+        region,
+        availability_zone,
+        instance_type,
+        spot_price::REAL as spot_price,
+        epoch(timestamp) as timestamp
+    from 'history.parquet'
+);

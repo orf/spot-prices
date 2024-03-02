@@ -51,6 +51,8 @@ jobs:
           wget -q https://github.com/duckdb/duckdb/releases/download/v0.10.0/duckdb_cli-linux-amd64.zip
           unzip duckdb_cli-linux-amd64.zip
       - run: ./duckdb < export.sql
+      - run: |
+          gzip -1 history.sqlite
       - name: Get current time
         uses: josStorer/get-current-time@v2
         id: current-time
@@ -64,8 +66,10 @@ jobs:
           tag_name: latest
           name: |
             ${{ steps.current-time.outputs.formattedTime }}
-          files: 'history.parquet'
+          files: |
+            history.parquet 
+            history.sqlite.gz
           body: |
-            Automated bundling of release data into a sqlite database. 
+            Automated bundling of spot prices into a parquet file 
             Updated on ${{ steps.current-time.outputs.formattedTime }}
             See the readme for more information.
