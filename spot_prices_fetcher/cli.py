@@ -22,6 +22,7 @@ class State(pydantic.BaseModel):
 def fetch(
     state_file: Path = Path("state.json"),
     output_directory: Path = Path("spot_price_data/"),
+    max_days: int = 10,
 ):
     ec2: EC2Client = boto3.client("ec2")
     region_response = ec2.describe_regions(
@@ -61,7 +62,8 @@ def fetch(
             )
             state.regions[region] = date_to_fetch
 
-        pool.map(_fetch, regions)
+        for _ in range(max_days):
+            list(pool.map(_fetch, regions))
 
     state_file.write_bytes(
         orjson.dumps(
