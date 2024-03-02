@@ -9,7 +9,7 @@ import pydantic
 from dateutil.tz import tzutc
 from mypy_boto3_ec2 import EC2Client
 from typer import Typer, Argument
-
+from concurrent.futures import ThreadPoolExecutor
 app = Typer()
 
 
@@ -36,24 +36,27 @@ def fetch(
 
     regions = [region["RegionName"] for region in region_response["Regions"]]
     print(f"Fetching data for regions {regions}")
-    for region in regions:
-        last_fetched_date = state.regions.get(
-            region, datetime.date.today() - datetime.timedelta(days=50)
-        )
-        date_to_fetch = last_fetched_date + datetime.timedelta(days=1)
+    with ThreadPoolExecutor() as pool:
+        def _fetch(region: str):
+            last_fetched_date = state.regions.get(
+                region, datetime.date.today() - datetime.timedelta(days=50)
+            )
+            date_to_fetch = last_fetched_date + datetime.timedelta(days=1)
 
-        region_directory = output_directory / f"region={region}"
-        region_directory.mkdir(exist_ok=True, parents=True)
-        output_path = region_directory / f"{date_to_fetch}.jsonl.gz"
+            region_directory = output_directory / f"region={region}"
+            region_directory.mkdir(exist_ok=True, parents=True)
+            output_path = region_directory / f"{date_to_fetch}.jsonl.gz"
 
-        fetch_date(
-            day=datetime.datetime.combine(date_to_fetch, datetime.time.min).astimezone(
-                tzutc()
-            ),
-            region=region,
-            output_path=output_path,
-        )
-        state.regions[region] = date_to_fetch
+            fetch_date(
+                day=datetime.datetime.combine(date_to_fetch, datetime.time.min).astimezone(
+                    tzutc()
+                ),
+                region=region,
+                output_path=output_path,
+            )
+            state.regions[region] = date_to_fetch
+
+        pool.map(_fetch, regions)
 
     state_file.write_text(state.model_dump_json())
 
@@ -91,7 +94,7 @@ def fetch_date(
         for item in page["SpotPriceHistory"]
         if start_timestamp <= item["Timestamp"] < end_timestamp
     ]
-    print(f"Got {len(results)} results")
+    print(f"Got {len(results)} results for {region}")
     sorted_results = sorted(results, key=lambda x: x["Timestamp"])
     to_write = b"\n".join(orjson.dumps(result) for result in sorted_results)
     if output_path.name.endswith('.gz'):
