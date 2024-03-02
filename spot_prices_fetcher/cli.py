@@ -36,7 +36,7 @@ def fetch(
 
     regions = [region["RegionName"] for region in region_response["Regions"]]
     print(f"Fetching data for regions {regions}")
-    with ThreadPoolExecutor() as pool:
+    with ThreadPoolExecutor(max_workers=len(regions)) as pool:
         def _fetch(region: str):
             last_fetched_date = state.regions.get(
                 region, datetime.date.today() - datetime.timedelta(days=50)
