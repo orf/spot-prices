@@ -1,4 +1,4 @@
-# Spot Prices
+# AWS Spot Prices
 
 This repo contains historic and present AWS Spot prices for all publicly available regions.
 
