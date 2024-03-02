@@ -23,7 +23,7 @@ class State(pydantic.BaseModel):
 def fetch(
     state_file: Path = Path("state.json"),
     output_directory: Path = Path("spot_price_data/"),
-    max_days: int = 10,
+    max_days: int = 1,
 ):
     ec2: EC2Client = boto3.client("ec2")
     region_response = ec2.describe_regions(
