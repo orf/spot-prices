@@ -37,6 +37,6 @@ jobs:
       - uses: EndBug/add-and-commit@v9
         with:
           add: 'spot_price_data/ state.json'
-          default_author: github_actor
+          default_author: github_actions
           message: 'Update Data'
           push: true
