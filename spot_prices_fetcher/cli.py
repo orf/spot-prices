@@ -10,6 +10,7 @@ from dateutil.tz import tzutc
 from mypy_boto3_ec2 import EC2Client
 from typer import Typer, Argument
 from concurrent.futures import ThreadPoolExecutor
+
 app = Typer()
 
 
@@ -19,8 +20,8 @@ class State(pydantic.BaseModel):
 
 @app.command()
 def fetch(
-        state_file: Path = Path("state.json"),
-        output_directory: Path = Path("spot_price_data/"),
+    state_file: Path = Path("state.json"),
+    output_directory: Path = Path("spot_price_data/"),
 ):
     ec2: EC2Client = boto3.client("ec2")
     region_response = ec2.describe_regions(
@@ -37,20 +38,24 @@ def fetch(
     regions = [region["RegionName"] for region in region_response["Regions"]]
     print(f"Fetching data for regions {regions}")
     with ThreadPoolExecutor(max_workers=len(regions)) as pool:
+
         def _fetch(region: str):
             last_fetched_date = state.regions.get(
                 region, datetime.date.today() - datetime.timedelta(days=50)
             )
             date_to_fetch = last_fetched_date + datetime.timedelta(days=1)
+            if date_to_fetch >= datetime.date.today():
+                print(f"Already fetched data for {region} up to {last_fetched_date}")
+                return
 
             region_directory = output_directory / f"region={region}"
             region_directory.mkdir(exist_ok=True, parents=True)
             output_path = region_directory / f"{date_to_fetch}.jsonl.gz"
 
             fetch_date(
-                day=datetime.datetime.combine(date_to_fetch, datetime.time.min).astimezone(
-                    tzutc()
-                ),
+                day=datetime.datetime.combine(
+                    date_to_fetch, datetime.time.min
+                ).astimezone(tzutc()),
                 region=region,
                 output_path=output_path,
             )
@@ -63,12 +68,12 @@ def fetch(
 
 @app.command()
 def fetch_date(
-        day: Annotated[
-            datetime.datetime,
-            Argument(formats=["%Y-%m-%d"]),
-        ],
-        region: str,
-        output_path: Path,
+    day: Annotated[
+        datetime.datetime,
+        Argument(formats=["%Y-%m-%d"]),
+    ],
+    region: str,
+    output_path: Path,
 ):
     ec2: EC2Client = boto3.client("ec2", region_name=region)
     paginator = ec2.get_paginator("describe_spot_price_history")
@@ -97,7 +102,7 @@ def fetch_date(
     print(f"Got {len(results)} results for {region}")
     sorted_results = sorted(results, key=lambda x: x["Timestamp"])
     to_write = b"\n".join(orjson.dumps(result) for result in sorted_results)
-    if output_path.name.endswith('.gz'):
+    if output_path.name.endswith(".gz"):
         to_write = gzip.compress(to_write)
     output_path.write_bytes(to_write)
 
