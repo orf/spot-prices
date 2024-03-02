@@ -22,9 +22,6 @@ def fetch(
         state_file: Path = Path("state.json"),
         output_directory: Path = Path("spot_price_data/"),
 ):
-    # day = day.date()
-    # print("Spot prices", day)
-
     ec2: EC2Client = boto3.client("ec2")
     region_response = ec2.describe_regions(
         Filters=[
@@ -38,6 +35,7 @@ def fetch(
         state = State(regions={})
 
     regions = [region["RegionName"] for region in region_response["Regions"]]
+    print(f"Fetching data for regions {regions}")
     for region in regions:
         last_fetched_date = state.regions.get(
             region, datetime.date.today() - datetime.timedelta(days=50)
