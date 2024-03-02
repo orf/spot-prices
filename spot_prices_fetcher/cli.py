@@ -63,7 +63,12 @@ def fetch(
 
         pool.map(_fetch, regions)
 
-    state_file.write_text(state.model_dump_json(indent=2))
+    state_file.write_bytes(
+        orjson.dumps(
+            state.model_dump(mode="json"),
+            option=orjson.OPT_SORT_KEYS | orjson.OPT_INDENT_2,
+        )
+    )
 
 
 @app.command()
