@@ -58,7 +58,7 @@ def fetch(
 
         pool.map(_fetch, regions)
 
-    state_file.write_text(state.model_dump_json())
+    state_file.write_text(state.model_dump_json(indent=2))
 
 
 @app.command()
