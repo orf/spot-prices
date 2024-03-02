@@ -7,11 +7,14 @@ on:
   pull_request:
     branches: [ main ]
 
+concurrency:
+  group: fetch-spot-prices
+
 permissions:
   id-token: write
   contents: write
 jobs:
-  AssumeRoleAndCallIdentity:
+  update:
     runs-on: ubuntu-latest
     if: github.repository == 'orf/spot-prices'
     steps:
@@ -21,7 +24,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: us-east-1
           mask-aws-account-id: true
       - name: Install poetry
         run: pipx install poetry
