@@ -3,14 +3,12 @@ SET enable_progress_bar_print = true;
 SET progress_bar_time = 100;
 SET max_memory = '2GB';
 SET threads = 4;
-INSTALL sqlite;
-LOAD sqlite;
 
 COPY (
     select region,
            AvailabilityZone as availability_zone,
            InstanceType     as instance_type,
-           SpotPrice::NUMERIC(10, 6) as spot_price,
+           SpotPrice::DECIMAL(7,4) as spot_price,
            Timestamp::TIMESTAMP_S as timestamp
     from read_json(
         'spot_price_data/*/*.jsonl.gz',
@@ -67,14 +65,3 @@ SELECT pg_size_pretty(sum(total_compressed_size)::bigint) as size,
     (SELECT max(timestamp) FROM read_parquet('last-90-days.parquet')) as max_date
 FROM parquet_metadata('last-90-days.parquet');
 
-ATTACH 'history.sqlite' AS sqlite_db (TYPE SQLITE);
-drop table if exists sqlite_db.spot_prices;
-create table sqlite_db.spot_prices AS (
-    select
-        region,
-        availability_zone,
-        instance_type,
-        spot_price::REAL as spot_price,
-        epoch(timestamp) as timestamp
-    from 'history.parquet'
-);

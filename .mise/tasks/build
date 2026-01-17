@@ -3,4 +3,3 @@
 set -euo pipefail
 
 duckdb -bail -echo -cmd "SET temp_directory='/tmp/duckdb.tmp'; SET enable_progress_bar = true;" < "${MISE_TASK_DIR}/export.sql"
-zstd history.sqlite
