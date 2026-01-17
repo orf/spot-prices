@@ -2,5 +2,5 @@
 #MISE description="Build the dataset from export.sql"
 set -euo pipefail
 
-duckdb -echo -cmd "SET temp_directory='/tmp/duckdb.tmp'; SET enable_progress_bar = true;" < "${MISE_TASK_DIR}/export.sql"
+duckdb -bail -echo -cmd "SET temp_directory='/tmp/duckdb.tmp'; SET enable_progress_bar = true;" < "${MISE_TASK_DIR}/export.sql"
 zstd history.sqlite
