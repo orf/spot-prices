@@ -69,6 +69,7 @@ jobs:
             ${{ steps.current-time.outputs.formattedTime }}
           files: |
             history.parquet 
+            last-90-days.parquet
             history.sqlite.gz
           body: |
             Automated bundling of spot prices into a parquet file 
