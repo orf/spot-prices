@@ -25,7 +25,7 @@ Data is available in two formats:
 
 ```sql
 SELECT *
-FROM 'https://github.com/orf/spot-prices/releases/download/latest/history.parquet'
+FROM 'https://github.com/orf/spot-prices/releases/download/latest/last-90-days.parquet'
 WHERE instance_type = 'c6i.2xlarge'
   AND region = 'eu-west-1'
 ORDER BY timestamp DESC
