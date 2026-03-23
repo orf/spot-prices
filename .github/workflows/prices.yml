@@ -34,7 +34,7 @@ jobs:
           cache: "poetry"
       - run: poetry install
       - run: poetry run python -m spot_prices_fetcher fetch
-      - uses: EndBug/add-and-commit@v9
+      - uses: EndBug/add-and-commit@v10
         with:
           add: |
             spot_price_data/
