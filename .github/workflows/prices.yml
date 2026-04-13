@@ -58,7 +58,7 @@ jobs:
           format: YYYY-MM-DD
           utcOffset: "+00:00"
       - name: Publish
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           draft: false
           tag_name: latest
